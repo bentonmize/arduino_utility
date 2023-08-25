@@ -1,0 +1,22 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.1.4",
+    "@types/yargs": "^17.0.24",
+    "pkg": "^5.8.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "serialport": "^11.0.1",
+    "yargs": "^17.7.2"
+  },
+  "bin": {
+    "cli": "./build/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "package": "pkg . --targets node14-macos-x64 --output cli"
+  },
+  "pkg": {
+    "scripts": "build/**/*.js"
+  }
+}

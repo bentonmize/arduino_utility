@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "outDir": "build",
+    "sourceMap": true,
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": true,
+    "declaration": true
+  },
+  "include": ["lib/**/*.ts"],
+  "exclude": ["node_modules", "**/__mocks__/*", "**/__tests__/*"]
+}

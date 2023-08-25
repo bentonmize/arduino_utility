@@ -1,0 +1,11 @@
+# Node
+node_modules/
+# Project
+build/
+# IntelliJ
+.idea/
+#Other
+**/.DS_Store
+tags
+
+dist/
