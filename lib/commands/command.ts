@@ -1,23 +1,23 @@
 import type {Arguments, CommandBuilder, CommandModule} from 'yargs';
 import {SerialPort} from 'serialport';
 import * as readline from "readline";
-import {read} from "fs";
 
 interface ICommandArguments extends Arguments {
-  arg: string
+  text?: boolean
+  debug?: boolean
 }
 
 const commandBuilder: CommandBuilder<ICommandArguments, ICommandArguments> = (yargs) =>
-  yargs.positional(
-    'arg', {
-      type: 'string',
-      demandOption: true
+  yargs.options({
+    text: {alias: 't', type: 'boolean', default: false, description: "Text input (as opposed to space-delimited hexadecimal)"},
+    debug: {alias: 'D', type: 'boolean', default: false, description: "Debugging on/off"},
   })
 
 
 const commandCommand: CommandModule<ICommandArguments, ICommandArguments> = {
   handler: async (argv: Arguments<ICommandArguments>) => {
     const ports = await SerialPort.list();
+    const textEnabled = argv.text;
 
     // Report available serial ports
     for(let i= 0; i < ports.length; i++) {
@@ -33,7 +33,7 @@ const commandCommand: CommandModule<ICommandArguments, ICommandArguments> = {
     readinput.question("Please select a port: ", (port) => {
       if(/^-?\d+$/.test(port) && parseInt(port) > 0 && parseInt(port) < ports.length) {
         console.log(`You selected port ${ports[port].path}`)
-        runSerial(ports, parseInt(port), readinput);
+        runSerial(ports, parseInt(port), readinput, argv);
       } else {
         console.log("You did not enter a valid selection!")
         readinput.close();
@@ -42,31 +42,40 @@ const commandCommand: CommandModule<ICommandArguments, ICommandArguments> = {
   },
   describe: 'A simple command',
   builder: commandBuilder,
-  command: 'command <arg>'
+  command: 'command'
 }
 
-const runSerial = (ports: any[], index: number, readinput: readline.Interface) => {
+const runSerial = (ports: any[], index: number, readinput: readline.Interface, argv: Arguments<ICommandArguments>) => {
   console.log("Opening serial port!");
 
   const gatherInput = () => {
     readinput.question("", (input) => {
-      console.log("TX: "+input);
+      if(argv.debug) {
+        console.log("Input: " + input);
+      }
 
       if (input === "exit") {
         readinput.close();
         process.exit(0)
       } else {
-        let buffer = []
-        for(let s of input.split(" ")) {
-          if(s.includes("0x")) {
-            s = s.replace("0x", "");
-            buffer.push(parseInt(s, 16))
-          } else {
-            buffer.push(parseInt(s))
+        let buffer: string|any[]
+        if(argv.text) {
+          buffer = input;
+        } else {
+          buffer = []
+          for (let s of input.split(" ")) {
+            if (s.includes("0x")) {
+              s = s.replace("0x", "");
+              buffer.push(parseInt(s, 16))
+            } else {
+              buffer.push(parseInt(s))
+            }
           }
         }
 
-        console.log(buffer);
+        if(argv.debug) {
+          console.log("TX: " + buffer);
+        }
         serialPort.write(buffer, (err) => {
           if(err) {
             return console.error("Error on write: ", err);
@@ -91,7 +100,9 @@ const runSerial = (ports: any[], index: number, readinput: readline.Interface) =
   })
 
   serialPort.on('data', (data) => {
-    console.log("RX: "+data.toString());
+    if(argv.debug) {
+      console.log("RX: " + data.toString());
+    }
   })
 
   gatherInput();
