@@ -109,9 +109,9 @@ const statusCommand: CommandModule = {
             if(lastStatus != currentStatus) {
               lastStatus = currentStatus;
               if(currentStatus === JobStatus.SUCCEED || color == "red") {
-                serialWrite(serialPort, "pulse-" + color);
+                serialWrite(serialPort, "pulse-" + color, true);
               } else {
-                serialWrite(serialPort, "progress-" + color);
+                serialWrite(serialPort, "progress-" + color, true);
               }
             }
             count = 0;

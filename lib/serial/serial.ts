@@ -24,7 +24,10 @@ export const serialOpen = (ports: any[], index: number, debug:boolean) => {
   return serialPort;
 }
 
-export const serialWrite = (port: SerialPort, data: string|any[]) => {
+export const serialWrite = (port: SerialPort, data: string|any[], debug = false) => {
+  if(debug) {
+    console.log("TX: " + data.toString());
+  }
   port.write(data, (err) => {
     if(err) {
       return console.error("Error on write: ", err);
