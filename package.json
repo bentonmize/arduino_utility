@@ -6,6 +6,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@aws-sdk/client-amplify": "^3.687.0",
     "serialport": "^11.0.1",
     "yargs": "^17.7.2"
   },

@@ -1,4 +1,3 @@
-import readline from "readline";
 import {SerialPort} from "serialport";
 
 export const serialOpen = (ports: any[], index: number, debug:boolean) => {

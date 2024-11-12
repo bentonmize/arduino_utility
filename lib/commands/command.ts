@@ -11,10 +11,9 @@ interface ICommandArguments extends Arguments {
 
 const commandBuilder: CommandBuilder<ICommandArguments, ICommandArguments> = (yargs) =>
   yargs.options({
-    text: {alias: 't', type: 'boolean', default: false, description: "Text input (as opposed to space-delimited hexadecimal)"},
+    text: {alias: 't', type: 'boolean', default: true, description: "Text input (as opposed to space-delimited hexadecimal)"},
     debug: {alias: 'D', type: 'boolean', default: false, description: "Debugging on/off"},
   })
-
 
 const commandCommand: CommandModule<ICommandArguments, ICommandArguments> = {
   handler: async (argv: Arguments<ICommandArguments>) => {
@@ -38,7 +37,7 @@ const commandCommand: CommandModule<ICommandArguments, ICommandArguments> = {
         const serialPort = serialOpen(ports, parseInt(port), argv.debug);
 
         const gatherInput = () => {
-          readinput.question("", (input) => {
+          readinput.question("", async (input) => {
             if(argv.debug) {
               console.log("Input: " + input);
             }
@@ -62,7 +61,7 @@ const commandCommand: CommandModule<ICommandArguments, ICommandArguments> = {
       }
     })
   },
-  describe: 'A simple command',
+  describe: 'A simple serial terminal',
   builder: commandBuilder,
   command: 'command'
 }

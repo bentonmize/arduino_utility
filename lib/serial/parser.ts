@@ -1,5 +1,3 @@
-import {SerialPort} from "serialport";
-
 export const parseInput = (input: string, isText: boolean, debug: boolean) => {
   let buffer: string|any[]
   if(isText) {
