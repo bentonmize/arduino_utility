@@ -1,4 +1,6 @@
 {
+  "name": "arduino-utility",
+  "version": "1.0.0",
   "devDependencies": {
     "@types/node": "^20.1.4",
     "@types/yargs": "^17.0.24",
