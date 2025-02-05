@@ -16,12 +16,6 @@ export const serialOpen = (ports: any[], index: number, debug:boolean) => {
     }
   })
 
-  serialPort.on('data', (data) => {
-    if(debug) {
-      console.log("RX: " + data.toString());
-    }
-  })
-
   return serialPort;
 }
 
