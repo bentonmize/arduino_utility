@@ -6,6 +6,8 @@ import {ReadlineParser} from "serialport";
 import {State} from "../serial/state";
 import {ITermArguments} from "../utils/Interfaces";
 import {startOnCallChecker} from "../utils/onCallCheck";
+import {startGithubPrChecker} from "../utils/githubPrChecker";
+import {GitState} from "../utils/GitState";
 
 const termBuilder: CommandBuilder = (yargs) =>
   yargs.options({
@@ -18,8 +20,10 @@ const termCommand: CommandModule = {
   handler: async (argv: Arguments<ITermArguments>) => {
     const serialPort = await selectSerialPort(argv.manual, argv.debug)
     const serial = new State(serialPort);
+    const gitState = new GitState();
 
-    startOnCallChecker(argv, serial);
+    setInterval(() => startGithubPrChecker(argv, serial, gitState), 5000);
+    // startOnCallChecker(argv, serial);
 
     const parser = serial.port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 

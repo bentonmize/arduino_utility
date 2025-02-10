@@ -9,6 +9,9 @@ export const startOnCallChecker = (
   argv: Arguments<ITermArguments>,
   serial: State,
 ) => {
+  if(argv.debug) {
+    console.log("Starting on-call checker");
+  }
   let onCall = false;
   const camCheckScript = spawn('bash', ['check_camera.sh']);
 
@@ -22,7 +25,7 @@ export const startOnCallChecker = (
         }
 
         if(serial.isReady && !onCall) {
-          serialWrite(serial.port, parseInput("red", argv.text, argv.debug));
+          serialWrite(serial.port, parseInput("onair-red", argv.text, argv.debug));
         }
         onCall = true;
       }
@@ -32,7 +35,7 @@ export const startOnCallChecker = (
         }
 
         if(serial.isReady && onCall) {
-          serialWrite(serial.port, parseInput("green", argv.text, argv.debug));
+          serialWrite(serial.port, parseInput("onair-green", argv.text, argv.debug));
         }
         onCall = false;
       }
