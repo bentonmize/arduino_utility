@@ -1,13 +1,12 @@
 import type {Arguments, CommandBuilder, CommandModule} from 'yargs';
 import * as readline from "readline";
-import {selectSerialPort, serialWrite} from "../serial/serial";
-import {parseInput} from "../serial/parser";
 import {ReadlineParser} from "serialport";
-import {State} from "../serial/state";
+import {SerialConnection} from "../serial/SerialConnection";
 import {ITermArguments} from "../utils/Interfaces";
-import {startOnCallChecker} from "../utils/onCallCheck";
 import {startGithubPrChecker} from "../utils/githubPrChecker";
 import {GitState} from "../utils/GitState";
+import {selectSerialPort} from "../serial/serial";
+import {startOnCallChecker} from "../utils/onCallCheck";
 
 const termBuilder: CommandBuilder = (yargs) =>
   yargs.options({
@@ -19,24 +18,27 @@ const termBuilder: CommandBuilder = (yargs) =>
 const termCommand: CommandModule = {
   handler: async (argv: Arguments<ITermArguments>) => {
     const serialPort = await selectSerialPort(argv.manual, argv.debug)
-    const serial = new State(serialPort);
+    const serial = new SerialConnection(serialPort, argv.debug);
     const gitState = new GitState();
 
     setInterval(() => startGithubPrChecker(argv, serial, gitState), 5000);
-    // startOnCallChecker(argv, serial);
+    startOnCallChecker(argv, serial);
 
     const parser = serial.port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-    parser.on('data', (data: string) => {
-      if(argv.debug) {
-        console.log(`RX: ${data}`);
-      }
-      if(data == "Initialized!") {
-        serial.setReady = true;
-      } else if (data == "exit") {
-        terminalRead.close();
-        serialPort.close()
-        process.exit(0);
+    serial.port.on('data', (data: string) => {
+      if(data) {
+        if (argv.debug) {
+          console.log(`RX: ${data}`);
+        }
+        // if (strData == "Initialized!") {
+        //   console.log("Serial port initialized!");
+        //   serial.setReady = true;
+        // }
+        if(!serial.isReady) {
+          console.log("Serial port initialized!");
+          serial.setReady = true;
+        }
       }
     });
 
@@ -46,8 +48,12 @@ const termCommand: CommandModule = {
     });
 
     terminalRead.on('line', (input: string) => {
-      const txData = parseInput(input, argv.text, argv.debug);
-      serialWrite(serialPort, txData);
+      if (input == "exit") {
+        terminalRead.close();
+        serialPort.close()
+        process.exit(0);
+      }
+      serial.write(input);
     });
   },
   describe: 'A simple serial terminal',

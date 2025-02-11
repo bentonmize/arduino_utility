@@ -6,8 +6,8 @@ export const serialOpen = (ports: any[], index: number, debug:boolean) => {
 
   const serialPort = new SerialPort({
     path: ports[index].path,
-    baudRate: 115200,
-    autoOpen: false
+    baudRate: 230400,
+    autoOpen: false,
   })
 
   serialPort.open((err) => {
@@ -17,17 +17,6 @@ export const serialOpen = (ports: any[], index: number, debug:boolean) => {
   })
 
   return serialPort;
-}
-
-export const serialWrite = (port: SerialPort, data: string|any[], debug = false) => {
-  if(debug) {
-    console.log("TX: " + data.toString());
-  }
-  port.write(data, (err) => {
-    if(err) {
-      return console.error("Error on write: ", err);
-    }
-  })
 }
 
 export const selectSerialPort = async (manual: boolean, debug: boolean): Promise<SerialPort> => {

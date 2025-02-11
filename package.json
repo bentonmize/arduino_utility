@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-amplify": "^3.687.0",
-    "serialport": "^11.0.1",
+    "serialport": "^13.0.0",
     "yargs": "^17.7.2"
   },
   "bin": {

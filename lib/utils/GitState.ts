@@ -16,7 +16,7 @@ export class GitState {
 
   constructor() {
     this._repo = "dexcom-inc/therapeutic-portal";
-    this._prNumber = "42";
+    this._prNumber = "44";
     this._state = BucketStatus.none;
   }
 

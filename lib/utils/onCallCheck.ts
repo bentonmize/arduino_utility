@@ -1,13 +1,11 @@
 import {spawn} from "node:child_process";
-import {serialWrite} from "../serial/serial";
-import {parseInput} from "../serial/parser";
 import {Arguments} from "yargs";
-import {State} from "../serial/state";
+import {SerialConnection} from "../serial/SerialConnection";
 import {ITermArguments} from "./Interfaces";
 
 export const startOnCallChecker = (
   argv: Arguments<ITermArguments>,
-  serial: State,
+  serial: SerialConnection,
 ) => {
   if(argv.debug) {
     console.log("Starting on-call checker");
@@ -25,7 +23,7 @@ export const startOnCallChecker = (
         }
 
         if(serial.isReady && !onCall) {
-          serialWrite(serial.port, parseInput("onair-red", argv.text, argv.debug));
+          serial.write("onair-red");
         }
         onCall = true;
       }
@@ -35,7 +33,7 @@ export const startOnCallChecker = (
         }
 
         if(serial.isReady && onCall) {
-          serialWrite(serial.port, parseInput("onair-green", argv.text, argv.debug));
+          serial.write("onair-green");
         }
         onCall = false;
       }

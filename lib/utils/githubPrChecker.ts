@@ -1,10 +1,8 @@
 import {Arguments} from "yargs";
 import {ITermArguments} from "./Interfaces";
-import {State} from "../serial/state";
+import {SerialConnection} from "../serial/SerialConnection";
 import {spawn} from "node:child_process";
 import {BucketStatus, GitState} from "./GitState";
-import {serialWrite} from "../serial/serial";
-import {parseInput} from "../serial/parser";
 
 interface CheckStatus {
   bucket: string;
@@ -14,7 +12,7 @@ interface CheckStatus {
 
 export const startGithubPrChecker = (
   argv: Arguments<ITermArguments>,
-  serial: State,
+  serial: SerialConnection,
   gitState: GitState
 ) => {
   const prCheckScript = spawn('bash',
@@ -25,7 +23,9 @@ export const startGithubPrChecker = (
   prCheckScript.stdout.on('data', (data: Buffer) => {
     const output: [CheckStatus] = JSON.parse(data.toString())
     let setColor = false
-    console.log(output);
+    if(argv.debug) {
+      console.log(output);
+    }
 
     if(output.some((status) => status.bucket === "fail")) {
       if(gitState.state != BucketStatus.fail) {
@@ -55,15 +55,11 @@ export const startGithubPrChecker = (
     }
 
     if(serial.isReady && setColor) {
-      serialWrite(serial.port, parseInput(`ring-${color}`, argv.text, argv.debug));
+      serial.write(`ring-${color}`);
     }
   });
 
   prCheckScript.stderr.on('data', (data: Buffer) => {
     console.error(`Error: ${data.toString()}`);
-  });
-
-  prCheckScript.on('close', (code: number) => {
-    console.log(`Bash script exited with code ${code}`);
   });
 }
